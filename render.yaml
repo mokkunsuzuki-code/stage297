@@ -1,12 +1,10 @@
 services:
   - type: web
-    name: stage291
-    runtime: python
-    repo: https://github.com/mokkunsuzuki-code/stage291
-    branch: main
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port 10000"
+    name: stage297
+    env: python
     plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.10
+      - key: STAGE289_VERIFY_URL
+        value: https://stage289.onrender.com/api/verify

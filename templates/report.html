@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Stage297 Verification Report</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>Stage297 Verification Report Package</h1>
+      <p class="subtitle">Human-readable verification report with machine-verifiable SHA-256 proof.</p>
+    </header>
+
+    <section class="panel">
+      <h2>Decision</h2>
+      <div class="result-card {{ report.decision.decision }}">
+        <div class="result-head">
+          <span class="decision {{ report.decision.decision }}">{{ report.decision.decision.upper() }}</span>
+          <span class="score">Trust Score: {{ "%.3f"|format(report.decision.trust_score) }}</span>
+        </div>
+        <div>Fail-Closed: {{ report.decision.fail_closed }}</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Subject</h2>
+      <div>ID: {{ report.subject.result_id }}</div>
+      <div>URL: <code>{{ report.subject.input_url }}</code></div>
+      <div>Created At: {{ report.subject.created_at }}</div>
+    </section>
+
+    <section class="panel">
+      <h2>Upstream</h2>
+      <div>Source: {{ report.upstream.source }}</div>
+      <div>Status: {{ report.upstream.status }}</div>
+    </section>
+
+    <section class="panel">
+      <h2>Evidence</h2>
+      <div>Manifest SHA-256: <code>{{ report.evidence.manifest_sha256 }}</code></div>
+      <h3>Reasons</h3>
+      <ul class="reason-list">
+        {% for reason in reasons %}
+          <li class="{{ 'ok' if reason.ok else 'ng' }}">
+            <strong>{{ reason.item }}</strong>: {{ reason.message }}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Report Proof</h2>
+      <div>Report SHA-256: <code>{{ report_sha256 }}</code></div>
+    </section>
+  </main>
+</body>
+</html>

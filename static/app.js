@@ -40,6 +40,15 @@ function renderResult(result, id = null) {
     </li>
   `).join("");
 
+  const reportLinks = id ? `
+    <div class="actions export-actions">
+      <a href="/report/${id}" target="_blank">HTMLレポート</a>
+      <a href="/api/report/${id}/json" target="_blank">Report JSON</a>
+      <a href="/api/report/${id}/sha256" target="_blank">Report SHA256</a>
+      <button type="button" onclick="saveReport(${id})">レポートを保存</button>
+    </div>
+  ` : "";
+
   resultCard.className = `result-card ${decisionClass(result.decision)}`;
   resultCard.innerHTML = `
     <div class="result-head">
@@ -55,20 +64,16 @@ function renderResult(result, id = null) {
       <div><strong>Upstream Status:</strong> ${result.upstream_status || "-"}</div>
     </div>
     <ul class="reason-list">${reasonsHtml}</ul>
+    ${reportLinks}
   `;
 }
 
 async function verifyAndSave() {
-  const payload = {
-    url: urlInput.value,
-    manifest: manifestInput.value
-  };
+  const payload = { url: urlInput.value, manifest: manifestInput.value };
 
   const res = await fetch("/api/verify", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify(payload)
   });
 
@@ -86,20 +91,10 @@ async function verifyAndSave() {
 function buildQueryString() {
   const params = new URLSearchParams();
 
-  if (decisionFilter.value) {
-    params.set("decision", decisionFilter.value);
-  }
-  if (urlQueryInput.value.trim()) {
-    params.set("url_query", urlQueryInput.value.trim());
-  }
-  if (minScoreInput.value.trim()) {
-    params.set("min_score", minScoreInput.value.trim());
-  }
-  if (limitInput.value.trim()) {
-    params.set("limit", limitInput.value.trim());
-  } else {
-    params.set("limit", "20");
-  }
+  if (decisionFilter.value) params.set("decision", decisionFilter.value);
+  if (urlQueryInput.value.trim()) params.set("url_query", urlQueryInput.value.trim());
+  if (minScoreInput.value.trim()) params.set("min_score", minScoreInput.value.trim());
+  params.set("limit", limitInput.value.trim() || "20");
 
   return params.toString();
 }
@@ -128,8 +123,7 @@ async function loadHistory() {
   historyMeta.textContent =
     `件数: ${data.count} / decision=${data.filters.decision || "all"} / ` +
     `url_query=${data.filters.url_query || "-"} / ` +
-    `min_score=${data.filters.min_score ?? "-"} / ` +
-    `limit=${data.filters.limit}`;
+    `min_score=${data.filters.min_score ?? "-"} / limit=${data.filters.limit}`;
 
   historyBox.innerHTML = data.items.map(item => `
     <div class="history-item">
@@ -142,7 +136,12 @@ async function loadHistory() {
       <div><strong>Time:</strong> ${item.created_at}</div>
       <div><strong>SHA-256:</strong> <code>${item.manifest_sha256}</code></div>
       <div><strong>Upstream:</strong> ${item.upstream_source} / ${item.upstream_status}</div>
-      <button type="button" onclick="loadDetail(${item.id})">詳細表示</button>
+      <div class="actions export-actions">
+        <button type="button" onclick="loadDetail(${item.id})">詳細表示</button>
+        <a href="/report/${item.id}" target="_blank">HTMLレポート</a>
+        <a href="/api/report/${item.id}/json" target="_blank">JSON</a>
+        <a href="/api/report/${item.id}/sha256" target="_blank">SHA256</a>
+      </div>
     </div>
   `).join("");
 
@@ -161,12 +160,20 @@ async function loadDetail(id) {
   manifestInput.value = data.item.manifest_text;
 }
 
+async function saveReport(id) {
+  const res = await fetch(`/api/report/${id}/save`, { method: "POST" });
+  const data = await res.json();
+  if (!data.ok) {
+    alert("レポート保存に失敗しました。");
+    return;
+  }
+  alert(`レポート保存完了\nSHA256: ${data.saved.report_sha256}`);
+}
+
 async function loadDashboard() {
   const res = await fetch("/api/dashboard");
   const data = await res.json();
-  if (!data.ok) {
-    return;
-  }
+  if (!data.ok) return;
 
   const d = data.dashboard;
 
@@ -206,17 +213,12 @@ function loadSample() {
   urlInput.value = "https://example.com/verify";
   manifestInput.value = JSON.stringify({
     url: "https://example.com/verify",
-    subject: {
-      type: "verification_target",
-      name: "sample artifact"
-    },
+    subject: { type: "verification_target", name: "sample artifact" },
     evidence: [
       { type: "sha256", ok: true },
       { type: "github_actions_receipt", ok: true }
     ],
-    verification_policy: {
-      fail_closed: true
-    }
+    verification_policy: { fail_closed: true }
   }, null, 2);
 }
 

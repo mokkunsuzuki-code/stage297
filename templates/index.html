@@ -2,19 +2,19 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Stage296 - Verification Dashboard</title>
+  <title>Stage297 - Verification Report Package</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <main class="container">
     <header class="hero">
-      <h1>Stage296</h1>
-      <p class="subtitle">Verification Dashboard + Stage289 API Integration + Search / Filter + Export + SQLite Persistence</p>
+      <h1>Stage297</h1>
+      <p class="subtitle">Verification Report Package + Stage289 API Integration + Dashboard + Export + SQLite Persistence</p>
       <div class="badges">
-        <span>Page Stage: 296</span>
-        <span>Integration: Stage289 API</span>
-        <span>Dashboard: Enabled</span>
+        <span>Page Stage: 297</span>
+        <span>Report Package: Enabled</span>
+        <span>JSON / HTML / SHA256</span>
         <span>Fail-Closed: Enabled</span>
       </div>
     </header>
@@ -23,48 +23,23 @@
       <h2>接続情報</h2>
       <div class="info-box">
         <div><strong>Stage289 Verify URL:</strong> <code>{{ stage289_verify_url }}</code></div>
-        <div><strong>動作:</strong> Stage296 は Stage289 API の検証結果を保存し、全体状態をダッシュボードで可視化します。</div>
+        <div><strong>動作:</strong> Stage297 は検証結果から提出可能なレポートパッケージを生成します。</div>
       </div>
     </section>
 
     <section class="panel">
       <h2>ダッシュボード</h2>
       <div id="dashboardGrid" class="dashboard-grid">
-        <div class="metric-card">
-          <div class="metric-label">総件数</div>
-          <div id="metricTotal" class="metric-value">0</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">accept率</div>
-          <div id="metricAcceptRate" class="metric-value">0%</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">reject率</div>
-          <div id="metricRejectRate" class="metric-value">0%</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">upstream error率</div>
-          <div id="metricUpstreamErrorRate" class="metric-value">0%</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">平均 trust score</div>
-          <div id="metricAverageScore" class="metric-value">0.000</div>
-        </div>
+        <div class="metric-card"><div class="metric-label">総件数</div><div id="metricTotal" class="metric-value">0</div></div>
+        <div class="metric-card"><div class="metric-label">accept率</div><div id="metricAcceptRate" class="metric-value">0%</div></div>
+        <div class="metric-card"><div class="metric-label">reject率</div><div id="metricRejectRate" class="metric-value">0%</div></div>
+        <div class="metric-card"><div class="metric-label">upstream error率</div><div id="metricUpstreamErrorRate" class="metric-value">0%</div></div>
+        <div class="metric-card"><div class="metric-label">平均 trust score</div><div id="metricAverageScore" class="metric-value">0.000</div></div>
       </div>
-
       <div class="dashboard-sections">
-        <div class="dashboard-box">
-          <h3>Decision集計</h3>
-          <div id="decisionSummary"></div>
-        </div>
-        <div class="dashboard-box">
-          <h3>Upstream集計</h3>
-          <div id="upstreamSummary"></div>
-        </div>
-        <div class="dashboard-box">
-          <h3>Trust Score分布</h3>
-          <div id="scoreDistribution"></div>
-        </div>
+        <div class="dashboard-box"><h3>Decision集計</h3><div id="decisionSummary"></div></div>
+        <div class="dashboard-box"><h3>Upstream集計</h3><div id="upstreamSummary"></div></div>
+        <div class="dashboard-box"><h3>Trust Score分布</h3><div id="scoreDistribution"></div></div>
       </div>
     </section>
 
@@ -76,15 +51,9 @@
       <label for="manifest">manifest JSON</label>
       <textarea id="manifest" rows="12">{
   "url": "https://example.com/verify",
-  "subject": {
-    "name": "sample"
-  },
-  "evidence": [
-    {"type": "sha256", "ok": true}
-  ],
-  "verification_policy": {
-    "fail_closed": true
-  }
+  "subject": {"name": "sample"},
+  "evidence": [{"type": "sha256", "ok": true}],
+  "verification_policy": {"fail_closed": true}
 }</textarea>
 
       <div class="actions">
